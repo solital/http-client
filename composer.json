@@ -1,0 +1,13 @@
+{
+    "name": "solital/http-client",
+    "description": "HTTP Client for Solital Framework",
+    "keywords": [
+        "http-client",
+        "solital"
+    ],
+    "autoload": {
+        "psr-4": {
+            "Solital\\": "src/"
+        }
+    }
+}
