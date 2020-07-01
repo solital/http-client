@@ -1,6 +1,7 @@
 {
     "name": "solital/http-client",
     "description": "HTTP Client for Solital Framework",
+    "license": "MIT",
     "keywords": [
         "http-client",
         "solital"
