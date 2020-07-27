@@ -2,7 +2,7 @@
 
 namespace Solital;
 
-use Solital\CurlMethods;
+use Solital\Http\CurlMethods;
 use Solital\Exception\NotFoundException;
 use Solital\Exception\InvalidArgumentException;
 
@@ -14,188 +14,121 @@ class HttpClient extends CurlMethods
     protected $token;
 
     /**
-     * @var array
-     */
-    protected $headers;
-
-    /**
-     * @var curl
+     * @var Curl
      */
     protected $ch;
 
     /**
-     * @var string
-     */
-    protected $url;
-
-    /**
-     * @var curl
+     * @var Curl
      */
     protected $ssl;
 
     /**
-     * @var string
+     * @var HttpClient
      */
-    protected $method;
-
-    /**
-     * @var curl
-     */
-    protected $field;
-
-    /**
-     * @var curl
-     */
-    protected $execute;
+    private $res;
 
     /**
      * Start a cUrl extension
+     * @param array $headers
+     * @param string $token
      * @throw new NotFoundException 
      */
-    public function __construct()
+    public function __construct(array $headers = null, string $token = null)
     {
         if (!in_array('curl', get_loaded_extensions())) {
-            throw new \NotFoundException("'curl' extension is not enabled");
+            NotFoundException::alert(404, "'curl' extension is not enabled");
         }
-        
+
         $this->ch = curl_init();
         $this->ssl = curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, false);
-    }
 
-    /**
-     * Insert a token in header
-     * @param string $token
-     */
-    public function token(string $token)
-    {
-        $this->token = $token;
-        return $this->token;
+        if ($headers != null) {
+            $this->headers = $headers;
+        }
+
+        if ($token != null) {
+            $this->token = $token;
+        }
     }
 
     /**
      * Enable SSL verify
+     * @return string
      */
-    public function enableSSL()
+    public function enableSSL(): string
     {
         $this->ssl = curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, true);
         return $this->ssl;
     }
 
     /**
-     * Inserts headers in curl
-     * @param array $headers
+     * Check if there are headers in the request
+     * @return HttpClient
      */
-    public function headers(array $headers = null)
+    protected function verifyHeaders(): HttpClient
     {
-        $this->headers = [
-            'Content-Type: application/json',
-            'Accept: application/json',
-            'Authorization: Bearer '. $this->token
-        ];
-        
-        if ($headers != null) {
-            $this->headers = $headers;
+        if ($this->headers == null) {
+            $this->headers = [
+                'Content-Type: application/json',
+                'Accept: application/json'
+            ];
+        }
+
+        if ($this->token != null) {
+            array_push($this->headers, "Authorization: Bearer ".$this->token);
         }
 
         return $this;
     }
 
     /**
-     * Performs a GET request
+     * @param string $method
      * @param string $url
-     * @param bool   $decode
+     * @param array $data
+     * @return string
      */
-    public function get(string $url, bool $decode = false) 
+    public function request(string $method, string $url, array $data = null): HttpClient
     {
         $this->verifyHeaders();
-
         $this->ch;
         $this->verifyUrl($url);
         $this->ssl;
         curl_setopt($this->ch, CURLOPT_HTTPHEADER, $this->headers);
-        $res = $this->execute();
-        $decoded = json_decode($res, true);
+        $method = strtoupper($method);
 
-        if ($res === false) {
-            throw new \InvalidArgumentException(curl_error($this->ch));
+        if ($method == "POST" || $method == "PUT" || $method == "DELETE") {
+            $this->verifyMethod($method);
+
+            if ($method != "GET" || $method != "DELETE") {
+                $this->verifyFields($method, $data);
+            }
         }
 
-        if ($decode == true) {
-            return $decoded;
-        } else {
-            return $res;
-        }
-    }
-
-    /**
-     * Performs a POST request
-     * @param string $url
-     * @param array  $data
-     */
-    public function post(string $url, array $data) 
-    {
-        $this->verifyHeaders();
-
-        $this->ch;
-        $this->verifyUrl($url);
-        $this->ssl;
-        curl_setopt($this->ch, CURLOPT_HTTPHEADER, $this->headers);
-        $this->verifyMethod("POST");
-        $this->verifyFields("POST", $data);
-        $res = $this->execute();
-
-        if ($res === false) {
-            echo curl_error($this->ch);
-            die();
-        }
-
-        return $res;
-    }
-
-    /**
-     * Performs a PUT request
-     * @param string $url
-     * @param array  $data
-     */
-    public function put(string $url, array $data) 
-    {
-        $this->verifyHeaders();
+        $this->res = $this->execute();
         
-        $this->ch;
-        $this->verifyUrl($url);
-        $this->ssl;
-        curl_setopt($this->ch, CURLOPT_HTTPHEADER, $this->headers);
-        $this->verifyMethod("PUT");
-        $this->verifyFields("PUT",$data);
-        $res = $this->execute();
-
-        if ($res === false) {
-            throw new \InvalidArgumentException(curl_error($this->ch));
+        if ($this->res === false) {
+            response()->withStatus(404);
+            throw new InvalidArgumentException(curl_error($this->ch));
         }
 
-        return $res;
+        response()->withStatus(200);
+        return $this;
     }
 
     /**
-     * Performs a DELETE request
-     * @param string $url
+     * @return string|json
      */
-    public function delete(string $url) 
+    public function json(): string
     {
-        $this->verifyHeaders();
-
-        $this->ch;
-        $this->verifyUrl($url);
-        $this->ssl;
-        curl_setopt($this->ch, CURLOPT_HTTPHEADER, $this->headers);
-        $this->verifyMethod("DELETE");
-        $res = $this->execute();
-
-        if ($res === false) {
-            throw new \InvalidArgumentException(curl_error($this->ch));
-        }
-
-        return $res;
+        return $this->res; 
     }
 
+    /**
+     * @return array
+     */
+    public function array(): array
+    {
+        return json_decode($this->res, true);        
+    }
 }

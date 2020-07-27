@@ -6,6 +6,10 @@
         "http-client",
         "solital"
     ],
+    "require": {
+        "php": "^7.2",
+        "ext-curl": "*"
+    },
     "autoload": {
         "psr-4": {
             "Solital\\": "src/"
