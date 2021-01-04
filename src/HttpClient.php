@@ -9,9 +9,9 @@ use Solital\Exception\InvalidArgumentException;
 class HttpClient extends CurlMethods
 {
     /**
-     * @var string
+     * @var array
      */
-    protected $token;
+    protected $token = [];
 
     /**
      * @var Curl
@@ -29,12 +29,23 @@ class HttpClient extends CurlMethods
     private $res;
 
     /**
-     * Start a cUrl extension
-     * @param array $headers
-     * @param string $token
-     * @throw new NotFoundException 
+     * @var array
      */
-    public function __construct(array $headers = null, string $token = null)
+    private $http_methods = [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE",
+        "OPTIONS"
+    ];
+
+    /**
+     * @param array $headers
+     * @param array $token
+     * @throws NotFoundException
+     */
+    public function __construct(array $headers = null, array $token = null)
     {
         if (!in_array('curl', get_loaded_extensions())) {
             NotFoundException::alert(404, "'curl' extension is not enabled");
@@ -75,8 +86,12 @@ class HttpClient extends CurlMethods
             ];
         }
 
-        if ($this->token != null) {
-            array_push($this->headers, "Authorization: Bearer ".$this->token);
+        if (isset($this->token['token'])) {
+            array_push($this->headers, "Authorization: Bearer ".$this->token['token']);
+        } else if (isset($this->token['user']) && isset($this->token['pass'])) {
+            $base = $this->token['user'].":".$this->token['pass'];
+            $code = base64_encode($base);
+            array_push($this->headers, "Authorization: Basic ".$code);
         }
 
         return $this;
@@ -86,30 +101,33 @@ class HttpClient extends CurlMethods
      * @param string $method
      * @param string $url
      * @param array $data
-     * @return string
+     * @throws InvalidArgumentException
+     * @return HttpClient
      */
     public function request(string $method, string $url, array $data = null): HttpClient
     {
+        $method = strtoupper($method);
+        $this->validate($method, $url);
+        
         $this->verifyHeaders();
         $this->ch;
         $this->verifyUrl($url);
         $this->ssl;
         curl_setopt($this->ch, CURLOPT_HTTPHEADER, $this->headers);
-        $method = strtoupper($method);
 
-        if ($method == "POST" || $method == "PUT" || $method == "DELETE") {
-            $this->verifyMethod($method);
+        if ($method != "GET") {
+            $this->verifyMethod($method);   
+        }
 
-            if ($method != "GET" || $method != "DELETE") {
-                $this->verifyFields($method, $data);
-            }
+        if ($data != null) {
+            $this->verifyFields($method, $data);
         }
 
         $this->res = $this->execute();
         
         if ($this->res === false) {
             response()->withStatus(404);
-            throw new InvalidArgumentException(curl_error($this->ch));
+            InvalidArgumentException::alert(404, "Not Found", "");
         }
 
         response()->withStatus(200);
@@ -117,18 +135,45 @@ class HttpClient extends CurlMethods
     }
 
     /**
-     * @return string|json
+     * @return string
      */
-    public function json(): string
+    public function toJson(): string
     {
-        return $this->res; 
+        return (string)$this->res;
     }
 
     /**
      * @return array
      */
-    public function array(): array
+    public function toArray(): array
     {
-        return json_decode($this->res, true);        
+        return json_decode($this->res, true);
+    }
+
+    /**
+     * @return array
+     */
+    public function toObject(): array
+    {
+        return json_decode($this->res);
+    }
+
+    /**
+     * @param string $method
+     * @param string $url
+     * @throws InvalidArgumentException
+     * @return void
+     */
+    private function validate(string $method, string $url): void
+    {
+        if (!in_array($method, $this->http_methods) || is_numeric($method)) {
+            response()->withStatus(400);
+            InvalidArgumentException::alert(400, "Bad Request", "The '$method' method entered is not valid");
+        }
+
+        if (!filter_var($url, FILTER_VALIDATE_URL) || is_numeric($url)) {
+            response()->withStatus(400);
+            InvalidArgumentException::alert(400, "Bad Request", "The URL entered is not valid");
+        }
     }
 }

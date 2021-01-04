@@ -1,5 +1,17 @@
 # Released Notes
 
+## 0.3.0 - (2020-07-29)
+
+### Added
+
+- Added json, array and object return types in the `HttpClient` class
+- Added `PATCH` and `OPTIONS`
+
+### Changed
+
+- Changed basic and digest authentication
+- Changed exception template
+
 ## 0.2.0 - (2020-07-27)
 
 ### Changed

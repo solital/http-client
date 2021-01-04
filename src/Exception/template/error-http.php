@@ -4,9 +4,11 @@
             <h1 style="color: #EE0000;">Http Client alert: error in code execution</h1>
         </p>
         <hr>
-        <p><strong>Type error: </strong> Unauthorized<br>
+        <?php if(isset($type)): ?>
+        <p><strong>Type error: </strong> <?= $type; ?><br>
             <hr>
         </p>
+        <?php endif; ?>
         <p><strong>Code: </strong><?= $code; ?><br>
             <hr>
         </p>
