@@ -126,11 +126,11 @@ class HttpClient extends CurlMethods
         $this->res = $this->execute();
         
         if ($this->res === false) {
-            response()->withStatus(404);
-            InvalidArgumentException::alert(404, "Not Found", "");
+            http_response_code(404);
+            InvalidArgumentException::alert(404, "Not Found", "Request Not Found");
         }
 
-        response()->withStatus(200);
+        http_response_code(200);
         return $this;
     }
 
@@ -167,12 +167,12 @@ class HttpClient extends CurlMethods
     private function validate(string $method, string $url): void
     {
         if (!in_array($method, $this->http_methods) || is_numeric($method)) {
-            response()->withStatus(400);
+            http_response_code(400);
             InvalidArgumentException::alert(400, "Bad Request", "The '$method' method entered is not valid");
         }
 
         if (!filter_var($url, FILTER_VALIDATE_URL) || is_numeric($url)) {
-            response()->withStatus(400);
+            http_response_code(400);
             InvalidArgumentException::alert(400, "Bad Request", "The URL entered is not valid");
         }
     }

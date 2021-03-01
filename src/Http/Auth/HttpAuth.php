@@ -41,7 +41,7 @@ class HttpAuth
      * @param string $realm
      * @return void
      */
-    public function basic(string $realm = "Solital HttpClient"): void
+    public function basic(string $realm = "SolitalHttpClientBasic"): void
     {
         if (isset($this->server['PHP_AUTH_USER'])) {
             $this->auth['user'] = $this->server['PHP_AUTH_USER'];
@@ -56,7 +56,7 @@ class HttpAuth
         if (array_key_exists("user", $this->token) && array_key_exists("pass", $this->token)) {
             if (strcasecmp($this->token['user'], $this->auth['user']) != 0 || strcasecmp($this->token['pass'], $this->auth['pass']) != 0) {
                 header('WWW-Authenticate: Basic realm="' . $realm . '"');
-                header('HTTP/'.response()->getProtocolVersion().' 401 Unauthorized');
+                header('HTTP/'.$_SERVER['SERVER_PROTOCOL'].' 401 Unauthorized');
                 NotFoundException::alert(401, "You are not allowed to access the router");
             }
         } else {
@@ -69,14 +69,14 @@ class HttpAuth
      * @param string $realm
      * @return void
      */
-    public function digest(array $users, string $realm = "Secured Area"): void
+    public function digest(array $users, string $realm = "SolitalHttpClientDigest"): void
     {
         if (empty($_SERVER['PHP_AUTH_DIGEST'])) {
-            header('HTTP/'.response()->getProtocolVersion().' 401 Unauthorized');
+            header('HTTP/'.$_SERVER['SERVER_PROTOCOL'].' 401 Unauthorized');
             header('WWW-Authenticate: Digest realm="' . $realm .
                 '",qop="auth",nonce="' . uniqid() . '",opaque="' . md5($realm) . '"');
 
-            die('Texto enviado caso o usuário clique no botão Cancelar');
+            die('Authentication has been canceled ');
         }
 
         if (

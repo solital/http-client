@@ -4,7 +4,7 @@ http-client is a component that helps when consuming API and authenticating
 
 ## Documentation
 
-Visit [site] to see the entire http-client documentation
+Visit [documentation](https://solital.github.io/docs-v1/http/) to see the entire http-client documentation
 
 ## Types of authentications
 

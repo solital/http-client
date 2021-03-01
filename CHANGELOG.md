@@ -1,5 +1,17 @@
 # Released Notes
 
+## 1.0.0 - (2021-03-01)
+
+### Added
+
+- Added `http_response_code` to response
+
+### Changed
+
+- Changed `HttpAuth`
+
+-------------------------------------------------------------------------------
+
 ## 0.3.0 - (2020-07-29)
 
 ### Added
@@ -12,6 +24,8 @@
 - Changed basic and digest authentication
 - Changed exception template
 
+-------------------------------------------------------------------------------
+
 ## 0.2.0 - (2020-07-27)
 
 ### Changed
@@ -21,6 +35,8 @@
 ### Removed
 
 - Removed http authentication
+
+-------------------------------------------------------------------------------
 
 ## 0.1.0 - (2020-07-01)
 

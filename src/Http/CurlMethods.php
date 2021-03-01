@@ -95,7 +95,7 @@ abstract class CurlMethods
      * Performs the curl execution
      * @return string
      */
-    protected function execute(): string
+    protected function execute()
     {
         $this->execute = curl_exec($this->ch);
         $this->execute .= curl_close($this->ch);
