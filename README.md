@@ -10,4 +10,3 @@ Visit [documentation](https://solital.github.io/docs-v1/http/) to see the entire
 
 - basic
 - digest
-- jwt
