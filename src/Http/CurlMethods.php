@@ -7,32 +7,33 @@ abstract class CurlMethods
     /**
      * @var string
      */
-    protected $url;
+    protected string $url;
 
     /**
      * @var string
      */
-    protected $method;
+    protected string $method;
 
     /**
      * @var array
      */
-    protected $headers;
+    protected array $headers = [];
 
     /**
-     * @var curl
+     * @var mixed
      */
     protected $field;
 
     /**
-     * @var curl
+     * @var mixed
      */
     protected $execute;
 
     /**
      * Inserts headers in curl
      * @param array $headers
-     * @return CurlMethods
+     * 
+     * @return void
      */
     public function headers(array $headers = null): void
     {
@@ -49,12 +50,14 @@ abstract class CurlMethods
     /**
      * Check the request url
      * @param string $url
+     * 
      * @return string
      */
     protected function verifyUrl(string $url): string
     {
         $this->url = curl_setopt($this->ch, CURLOPT_URL, $url);
         $this->url .= curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, true);
+
         return $this->url;
     }
 
@@ -78,6 +81,7 @@ abstract class CurlMethods
      * Check the request fields
      * @param string $method
      * @param string $data
+     * 
      * @return string
      */
     protected function verifyFields($method, $data): string
@@ -93,6 +97,7 @@ abstract class CurlMethods
 
     /**
      * Performs the curl execution
+     * 
      * @return string
      */
     protected function execute()
