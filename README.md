@@ -1,12 +1,7 @@
 # HTTP Client for Solital Framework
 
-http-client is a component that helps when consuming API and authenticating
+This package is abandoned and will not receive future updates. Use the new HTTP Client component present in version 4.2 of the Solital Framework Core
 
 ## Documentation
 
-Visit [documentation](http://solitalframework.rf.gd/) to see the entire http-client documentation
-
-## Types of authentications
-
-- basic
-- digest
+Visit [documentation](https://solital.github.io/site/docs/4.x/http-client/) to see the entire http-client documentation
